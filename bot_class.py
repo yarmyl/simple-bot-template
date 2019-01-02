@@ -16,18 +16,19 @@ def req(url, method, data={}, req_method=0):
         print("Wrong method!")
     return r.json()
 
+
 class Bot:
 
     rm_keyboard = json.dumps({"remove_keyboard": True})
 
     """Bot init"""
-    def __init__(self, token):
-        self.__token = token
+    def __init__(self, conf):
+        self.__token = conf['CONF']['token']
         self.__url = "https://api.telegram.org/bot" + self.__token + '/'
         self.last_id = None
         if not self.checkToken():
             raise SystemExit("Bad token")
-        self.brain = bot_brain.Brain()
+        self.brain = bot_brain.Brain(conf['BRAIN'])
         self.queue = {}
         self.replyHi(self.parseMess(self.getUpdates(None, 0)))  # cap
 
@@ -125,11 +126,18 @@ class Bot:
         data = self.getUpdates()
         for mess in self.parseMess(data):
             message, board = self.brain.botBrain(mess[0])
-            self.sendMessage(
-                message,
-                mess[1],
-                mess_id=mess[2],
-                board=self.makeKeyboard(board)
-            )
             if board:
                 self.queue[mess[3]] = {mess[1]: mess[::2]}
+            if board == "text":
+                self.sendMessage(
+                    message,
+                    mess[1],
+                    mess_id=mess[2]
+                )
+            else:
+                self.sendMessage(
+                    message,
+                    mess[1],
+                    mess_id=mess[2],
+                    board=self.makeKeyboard(board)
+                )

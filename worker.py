@@ -40,7 +40,7 @@ def main():
     parser.read(namespace.conf) \
         if namespace.conf else parser.read('token.conf')
     settings = getSettings(parser)
-    bot = bot_class.Bot(settings['CONF']['token'])
+    bot = bot_class.Bot(settings)
     while 1:
         bot.startBrain()
 
